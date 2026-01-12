@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import com.example.doctorService.entity.WorkingHours;
+import com.example.doctorService.entity.WorkingHoursDto;
+import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -66,6 +70,17 @@ public class DoctorController {
     @ResponseBody
     public List<Doctor> searchDoctorsByDepartment(@PathVariable int departmentID) {
         return doctorService.searchDoctorByDepartment(departmentID);
+    }
+
+    @GetMapping("/doctors/{id}/workingHours")
+    public List<WorkingHoursDto> getSchedule(@PathVariable int id){
+        return doctorService.getWorkingHours(id);
+    }
+
+    @PostMapping("/doctors/{id}/workingHours")
+    public void addWorkingHour(@PathVariable int id,
+                      @Valid @RequestBody List<WorkingHoursDto> workingHoursDto){
+        doctorService.setWorkingHours(id,workingHoursDto);
     }
 
 }

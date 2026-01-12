@@ -1,0 +1,13 @@
+com\example\BillingService\repository\BillingRepository.class
+com\example\BillingService\entity\Bill.class
+com\example\BillingService\config\RabbitConfig.class
+com\example\BillingService\BillingServiceApplication.class
+com\example\BillingService\entity\BillDetailsDTO.class
+com\example\BillingService\entity\AppointmentDTO.class
+com\example\BillingService\controller\BillingController.class
+com\example\BillingService\service\BillService.class
+com\example\BillingService\entity\MessageOutBox.class
+com\example\BillingService\repository\MessageOutBoxRepo.class
+com\example\BillingService\config\JacksonConfig.class
+com\example\BillingService\entity\BillDTO.class
+com\example\BillingService\service\AppointmentMessageListener.class

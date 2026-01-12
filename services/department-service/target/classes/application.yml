@@ -1,6 +1,6 @@
 spring:
   application:
-    name: appointment-service  # matches config file name
+    name: department-service  # matches config file name
   config:
     import: "configserver:http://localhost:8888"
     fail-fast: true

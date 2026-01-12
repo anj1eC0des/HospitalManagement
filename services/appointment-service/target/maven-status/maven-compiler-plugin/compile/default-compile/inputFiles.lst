@@ -1,0 +1,13 @@
+C:\Users\hp\IdeaProjects\HospitalManagement\services\appointment-service\src\main\java\com\example\AppointmentService\AppointmentServiceApplication.java
+C:\Users\hp\IdeaProjects\HospitalManagement\services\appointment-service\src\main\java\com\example\AppointmentService\configs\RabbitConfig.java
+C:\Users\hp\IdeaProjects\HospitalManagement\services\appointment-service\src\main\java\com\example\AppointmentService\controller\AppointmentController.java
+C:\Users\hp\IdeaProjects\HospitalManagement\services\appointment-service\src\main\java\com\example\AppointmentService\entity\Appointment.java
+C:\Users\hp\IdeaProjects\HospitalManagement\services\appointment-service\src\main\java\com\example\AppointmentService\entity\AppointmentDetailsDTO.java
+C:\Users\hp\IdeaProjects\HospitalManagement\services\appointment-service\src\main\java\com\example\AppointmentService\entity\AppointmentDTO.java
+C:\Users\hp\IdeaProjects\HospitalManagement\services\appointment-service\src\main\java\com\example\AppointmentService\entity\OutBoxEntity.java
+C:\Users\hp\IdeaProjects\HospitalManagement\services\appointment-service\src\main\java\com\example\AppointmentService\entity\OutBoxProcessor.java
+C:\Users\hp\IdeaProjects\HospitalManagement\services\appointment-service\src\main\java\com\example\AppointmentService\repository\AppointmentRepository.java
+C:\Users\hp\IdeaProjects\HospitalManagement\services\appointment-service\src\main\java\com\example\AppointmentService\repository\OutboxRepository.java
+C:\Users\hp\IdeaProjects\HospitalManagement\services\appointment-service\src\main\java\com\example\AppointmentService\service\AppointmentService.java
+C:\Users\hp\IdeaProjects\HospitalManagement\services\appointment-service\src\main\java\com\example\AppointmentService\service\DoctorServiceClient.java
+C:\Users\hp\IdeaProjects\HospitalManagement\services\appointment-service\src\main\java\com\example\AppointmentService\service\PatientServiceClient.java
