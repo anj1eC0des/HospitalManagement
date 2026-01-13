@@ -11,7 +11,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EntityScan("com.example.doctorService")
 @EnableJpaRepositories("com.example.doctorService")
 public class DoctorServiceApplication {
-
 	public static void main(String[] args) {
 		SpringApplication.run(DoctorServiceApplication.class, args);
 	}

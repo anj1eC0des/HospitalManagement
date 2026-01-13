@@ -12,8 +12,8 @@ import com.example.doctorService.entity.Doctor;
 public interface DoctorRepository extends JpaRepository<Doctor, Integer> {
 
     @Query("SELECT d FROM Doctor d WHERE d.specialization LIKE :specialization")
-    public List<Doctor> findBySpecialization(String specialization);
+    List<Doctor> findBySpecialization(String specialization);
 
     @Query("SELECT d FROM Doctor d WHERE d.departmentId = :departmentId")
-    public List<Doctor> findByDepartment(int departmentId);
+    List<Doctor> findByDepartment(int departmentId);
 }

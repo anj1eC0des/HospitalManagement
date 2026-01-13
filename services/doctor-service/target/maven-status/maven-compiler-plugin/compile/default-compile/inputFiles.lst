@@ -1,8 +1,9 @@
 C:\Users\hp\IdeaProjects\HospitalManagement\services\doctor-service\src\main\java\com\example\doctorService\controller\DoctorController.java
 C:\Users\hp\IdeaProjects\HospitalManagement\services\doctor-service\src\main\java\com\example\doctorService\DoctorServiceApplication.java
+C:\Users\hp\IdeaProjects\HospitalManagement\services\doctor-service\src\main\java\com\example\doctorService\entity\CreateDoctor.java
 C:\Users\hp\IdeaProjects\HospitalManagement\services\doctor-service\src\main\java\com\example\doctorService\entity\Doctor.java
 C:\Users\hp\IdeaProjects\HospitalManagement\services\doctor-service\src\main\java\com\example\doctorService\entity\DoctorDTO.java
 C:\Users\hp\IdeaProjects\HospitalManagement\services\doctor-service\src\main\java\com\example\doctorService\entity\WorkingHours.java
-C:\Users\hp\IdeaProjects\HospitalManagement\services\doctor-service\src\main\java\com\example\doctorService\entity\WorkingHoursDto.java
+C:\Users\hp\IdeaProjects\HospitalManagement\services\doctor-service\src\main\java\com\example\doctorService\entity\WorkingHoursDTO.java
 C:\Users\hp\IdeaProjects\HospitalManagement\services\doctor-service\src\main\java\com\example\doctorService\repository\DoctorRepository.java
 C:\Users\hp\IdeaProjects\HospitalManagement\services\doctor-service\src\main\java\com\example\doctorService\service\DoctorService.java

@@ -4,16 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import com.example.doctorService.entity.WorkingHours;
-import com.example.doctorService.entity.WorkingHoursDto;
+import com.example.doctorService.entity.*;
 import jakarta.ws.rs.NotFoundException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import com.example.doctorService.entity.Doctor;
-import com.example.doctorService.entity.DoctorDTO;
 import com.example.doctorService.repository.DoctorRepository;
 
 @Service
+@Slf4j
 public class DoctorService {
 
     private final DoctorRepository doctorRepository;
@@ -22,31 +21,32 @@ public class DoctorService {
         this.doctorRepository = doctorRepository;
     }
 
-    public Doctor creatDoctor(DoctorDTO doctor) {
-        Doctor doc = new Doctor();
-        doc.setName(doctor.getName());
-        doc.setSpecialization(doctor.getSpecialization());
-        doc.setDepartmentId(doctor.getDepartmentId());
-        doc.setContactInformation(doctor.getContactInformation());
-        return doctorRepository.save(doc);
+    public void creatDoctor(CreateDoctor doctor) {
+        doctorRepository.save(doctor.entityFromDoctor());
     }
 
-    public List<Doctor> listDoctors() {
-        return doctorRepository.findAll();
+    public List<DoctorDTO> listDoctors() {
+        List<Doctor> doctorList= doctorRepository.findAll();
+        List<DoctorDTO> doctorDTOList=new ArrayList<>();
+        for(Doctor doc:doctorList){
+            doctorDTOList.add(DoctorDTO.dtoFromEntity(doc));
+        }
+        return doctorDTOList;
     }
 
-    public Optional<Doctor> getDoctor(int id) {
-
-        return doctorRepository.findById(id);
+    public DoctorDTO getDoctor(int id) {
+        Doctor doctor= doctorRepository.findById(id).orElseThrow(
+                ()-> new NotFoundException("Doctor not found."));
+        return DoctorDTO.dtoFromEntity(doctor);
     }
 
-    public Doctor updateDoctor(int id, DoctorDTO doctor) {
-        Doctor doc = new Doctor();
-        doc.setDoctorId(id);
-        doc.setName(doctor.getName());
-        doc.setSpecialization(doctor.getSpecialization());
-        doc.setDepartmentId(doctor.getDepartmentId());
-        doc.setContactInformation(doctor.getContactInformation());
+    public Doctor updateDoctor(int id, CreateDoctor doctor) {
+        Doctor doc = doctorRepository.findById(id).orElseThrow(()->
+                new NotFoundException("Doctor not found."));
+        doc.setName(doctor.name());
+        doc.setSpecialization(doctor.specialization());
+        doc.setDepartmentId(doctor.departmentId());
+        doc.setContactInformation(doctor.contactInformation());
         return doctorRepository.save(doc);
     }
 
@@ -62,29 +62,20 @@ public class DoctorService {
         return doctorRepository.findByDepartment(departmentId);
     }
 
-    public List<WorkingHoursDto> getWorkingHours(int id){
+    public List<WorkingHoursDTO> getWorkingHours(int id){
         Doctor doctor= doctorRepository.findById(id).orElseThrow(NotFoundException::new);
-        List<WorkingHoursDto> workingHours=new ArrayList<>();
-        for(WorkingHours wh: doctor.getWorkingHours()){
-            workingHours.add(new WorkingHoursDto(wh.getDayOfTheWeek(),
-                    wh.getStartTime(),
-                    wh.getEndTime()));
-        }
+        List<WorkingHoursDTO> workingHours=new ArrayList<>();
+        for(WorkingHours wh: doctor.getWorkingHours())
+            workingHours.add(WorkingHoursDTO.dtoFromEntity(wh));
         return workingHours;
     }
 
-    public void setWorkingHours(int id,List<WorkingHoursDto> workingHoursDtos){
+    public void setWorkingHours(int id,List<WorkingHoursDTO> workingHoursDtos){
         Doctor doctor= doctorRepository.findById(id).orElseThrow(NotFoundException::new);
-        List<WorkingHours> workingHours=new ArrayList<>();
-        for(WorkingHoursDto whd:workingHoursDtos){
-            WorkingHours wh=new WorkingHours();
-            wh.setDoctor(doctor);
-            wh.setDayOfTheWeek(whd.getDayOfTheWeek());
-            wh.setStartTime(whd.getStartTime());
-            wh.setEndTime(whd.getEndTime());
-            workingHours.add(wh);
-        }
-        doctor.setWorkingHours(workingHours);
+        List<WorkingHours> whs=doctor.getWorkingHours();
+        whs.clear();
+        for(WorkingHoursDTO whd:workingHoursDtos)
+            whs.add(whd.entityFromDto(doctor));
         doctorRepository.save(doctor);
     }
 }

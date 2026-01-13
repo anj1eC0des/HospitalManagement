@@ -1,13 +1,11 @@
 package com.example.doctorService.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import com.example.doctorService.entity.WorkingHours;
-import com.example.doctorService.entity.WorkingHoursDto;
+import com.example.doctorService.entity.CreateDoctor;
+import com.example.doctorService.entity.WorkingHoursDTO;
 import jakarta.validation.Valid;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,25 +30,25 @@ public class DoctorController {
 
     @PostMapping("/doctors")
     @ResponseBody
-    public Doctor createDoctor(@RequestBody DoctorDTO doctor) {
-        return doctorService.creatDoctor(doctor);
+    public void createDoctor(@RequestBody CreateDoctor doctor) {
+        doctorService.creatDoctor(doctor);
     }
 
     @GetMapping("/doctors")
     @ResponseBody
-    public List<Doctor> getDoctors() {
+    public List<DoctorDTO> getDoctors() {
         return doctorService.listDoctors();
     }
 
     @GetMapping("/doctors/{id}")
     @ResponseBody
-    public Optional<Doctor> getDoctors(@PathVariable int id) {
+    public DoctorDTO getDoctors(@PathVariable int id) {
         return doctorService.getDoctor(id);
     }
 
     @PutMapping("/doctors/{id}")
     @ResponseBody
-    public Doctor updateDoctors(@RequestBody DoctorDTO doctor, @PathVariable int id) {
+    public Doctor updateDoctors(@RequestBody CreateDoctor doctor, @PathVariable int id) {
         return doctorService.updateDoctor(id, doctor);
     }
 
@@ -73,13 +71,13 @@ public class DoctorController {
     }
 
     @GetMapping("/doctors/{id}/workingHours")
-    public List<WorkingHoursDto> getSchedule(@PathVariable int id){
+    public List<WorkingHoursDTO> getSchedule(@PathVariable int id){
         return doctorService.getWorkingHours(id);
     }
 
     @PostMapping("/doctors/{id}/workingHours")
     public void addWorkingHour(@PathVariable int id,
-                      @Valid @RequestBody List<WorkingHoursDto> workingHoursDto){
+                       @RequestBody List<WorkingHoursDTO> workingHoursDto){
         doctorService.setWorkingHours(id,workingHoursDto);
     }
 
