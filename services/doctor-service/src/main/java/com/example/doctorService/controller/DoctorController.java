@@ -31,7 +31,7 @@ public class DoctorController {
     @PostMapping("/doctors")
     @ResponseBody
     public void createDoctor(@RequestBody CreateDoctor doctor) {
-        doctorService.creatDoctor(doctor);
+        doctorService.createDoctor(doctor);
     }
 
     @GetMapping("/doctors")
@@ -48,7 +48,7 @@ public class DoctorController {
 
     @PutMapping("/doctors/{id}")
     @ResponseBody
-    public Doctor updateDoctors(@RequestBody CreateDoctor doctor, @PathVariable int id) {
+    public DoctorDTO updateDoctors(@RequestBody CreateDoctor doctor, @PathVariable int id) {
         return doctorService.updateDoctor(id, doctor);
     }
 
@@ -60,13 +60,13 @@ public class DoctorController {
 
     @GetMapping("/doctors/specialization/{name}")
     @ResponseBody
-    public List<Doctor> searchDoctorsBySpecialization(@PathVariable String name) {
+    public List<DoctorDTO> searchDoctorsBySpecialization(@PathVariable String name) {
         return doctorService.searchDoctorsBySpecialization(name);
     }
 
     @GetMapping("/doctors/department/{departmentId}")
     @ResponseBody
-    public List<Doctor> searchDoctorsByDepartment(@PathVariable int departmentID) {
+    public List<DoctorDTO> searchDoctorsByDepartment(@PathVariable int departmentID) {
         return doctorService.searchDoctorByDepartment(departmentID);
     }
 

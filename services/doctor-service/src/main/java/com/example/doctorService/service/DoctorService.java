@@ -21,12 +21,18 @@ public class DoctorService {
         this.doctorRepository = doctorRepository;
     }
 
-    public void creatDoctor(CreateDoctor doctor) {
-        doctorRepository.save(doctor.entityFromDoctor());
+    public void createDoctor(CreateDoctor doctor) {
+        Doctor doc=doctorRepository.save(doctor.entityFromDoctor());
+        log.info("Doctor created. {},{},{},{}",
+                doc.getDoctorId(),
+                doc.getName(),
+                doc.getDepartmentId(),
+                doc.getSpecialization());
     }
 
     public List<DoctorDTO> listDoctors() {
         List<Doctor> doctorList= doctorRepository.findAll();
+        log.info("Doctor list fetched.");
         List<DoctorDTO> doctorDTOList=new ArrayList<>();
         for(Doctor doc:doctorList){
             doctorDTOList.add(DoctorDTO.dtoFromEntity(doc));
@@ -35,35 +41,60 @@ public class DoctorService {
     }
 
     public DoctorDTO getDoctor(int id) {
-        Doctor doctor= doctorRepository.findById(id).orElseThrow(
+        Doctor doc= doctorRepository.findById(id).orElseThrow(
                 ()-> new NotFoundException("Doctor not found."));
-        return DoctorDTO.dtoFromEntity(doctor);
+        log.info("Doctor fetched. {},{},{},{}",
+                doc.getDoctorId(),
+                doc.getName(),
+                doc.getDepartmentId(),
+                doc.getSpecialization());
+        return DoctorDTO.dtoFromEntity(doc);
     }
 
-    public Doctor updateDoctor(int id, CreateDoctor doctor) {
+    public DoctorDTO updateDoctor(int id, CreateDoctor doctor) {
         Doctor doc = doctorRepository.findById(id).orElseThrow(()->
                 new NotFoundException("Doctor not found."));
         doc.setName(doctor.name());
         doc.setSpecialization(doctor.specialization());
         doc.setDepartmentId(doctor.departmentId());
         doc.setContactInformation(doctor.contactInformation());
-        return doctorRepository.save(doc);
+        Doctor d=doctorRepository.save(doc);
+        log.info("Doctor updated. {},{},{},{}",
+                doc.getDoctorId(),
+                doc.getName(),
+                doc.getDepartmentId(),
+                doc.getSpecialization());
+        return DoctorDTO.dtoFromEntity(d);
     }
 
     public void deleteDoctor(int id) {
         doctorRepository.deleteById(id);
+        log.info("Doctor with id= {} deleted.",id);
     }
 
-    public List<Doctor> searchDoctorsBySpecialization(String name) {
-        return doctorRepository.findBySpecialization(name);
+    public List<DoctorDTO> searchDoctorsBySpecialization(String name) {
+        List<Doctor> doctorList= doctorRepository.findBySpecialization(name);
+        log.info("Doctor list by specialisation {} fetched.",name);
+        List<DoctorDTO> doctorDTOList=new ArrayList<>();
+        for(Doctor doc:doctorList){
+            doctorDTOList.add(DoctorDTO.dtoFromEntity(doc));
+        }
+        return doctorDTOList;
     }
 
-    public List<Doctor> searchDoctorByDepartment(int departmentId) {
-        return doctorRepository.findByDepartment(departmentId);
+    public List<DoctorDTO> searchDoctorByDepartment(int departmentId) {
+        List<Doctor> doctorList= doctorRepository.findByDepartment(departmentId);
+        log.info("Doctor list by departmentId {} fetched.",departmentId);
+        List<DoctorDTO> doctorDTOList=new ArrayList<>();
+        for(Doctor doc:doctorList){
+            doctorDTOList.add(DoctorDTO.dtoFromEntity(doc));
+        }
+        return doctorDTOList;
     }
 
     public List<WorkingHoursDTO> getWorkingHours(int id){
         Doctor doctor= doctorRepository.findById(id).orElseThrow(NotFoundException::new);
+        log.info("Schedule for doctorId= {} fetched.",id);
         List<WorkingHoursDTO> workingHours=new ArrayList<>();
         for(WorkingHours wh: doctor.getWorkingHours())
             workingHours.add(WorkingHoursDTO.dtoFromEntity(wh));
@@ -72,6 +103,7 @@ public class DoctorService {
 
     public void setWorkingHours(int id,List<WorkingHoursDTO> workingHoursDtos){
         Doctor doctor= doctorRepository.findById(id).orElseThrow(NotFoundException::new);
+        log.info("Schedule for doctorId= {} updated.",id);
         List<WorkingHours> whs=doctor.getWorkingHours();
         whs.clear();
         for(WorkingHoursDTO whd:workingHoursDtos)
