@@ -7,9 +7,11 @@ import java.util.Optional;
 import com.example.doctorService.entity.*;
 import jakarta.ws.rs.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.example.doctorService.repository.DoctorRepository;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @Slf4j
@@ -42,7 +44,7 @@ public class DoctorService {
 
     public DoctorDTO getDoctor(int id) {
         Doctor doc= doctorRepository.findById(id).orElseThrow(
-                ()-> new NotFoundException("Doctor not found."));
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Doctor not found."));
         log.info("Doctor fetched. {},{},{},{}",
                 doc.getDoctorId(),
                 doc.getName(),
@@ -52,12 +54,17 @@ public class DoctorService {
     }
 
     public DoctorDTO updateDoctor(int id, CreateDoctor doctor) {
-        Doctor doc = doctorRepository.findById(id).orElseThrow(()->
-                new NotFoundException("Doctor not found."));
+        Doctor doc = doctorRepository.findById(id).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Doctor not found."));
+
         doc.setName(doctor.name());
         doc.setSpecialization(doctor.specialization());
         doc.setDepartmentId(doctor.departmentId());
         doc.setContactInformation(doctor.contactInformation());
+        List<WorkingHours> whs=doc.getWorkingHours();
+        whs.clear();
+        for(WorkingHoursDTO whd:doctor.workingHours())
+            whs.add(whd.entityFromDto(doc));
         Doctor d=doctorRepository.save(doc);
         log.info("Doctor updated. {},{},{},{}",
                 doc.getDoctorId(),
@@ -93,7 +100,8 @@ public class DoctorService {
     }
 
     public List<WorkingHoursDTO> getWorkingHours(int id){
-        Doctor doctor= doctorRepository.findById(id).orElseThrow(NotFoundException::new);
+        Doctor doctor= doctorRepository.findById(id).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Doctor not found."));
         log.info("Schedule for doctorId= {} fetched.",id);
         List<WorkingHoursDTO> workingHours=new ArrayList<>();
         for(WorkingHours wh: doctor.getWorkingHours())
@@ -102,7 +110,8 @@ public class DoctorService {
     }
 
     public void setWorkingHours(int id,List<WorkingHoursDTO> workingHoursDtos){
-        Doctor doctor= doctorRepository.findById(id).orElseThrow(NotFoundException::new);
+        Doctor doctor= doctorRepository.findById(id).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Doctor not found."));
         log.info("Schedule for doctorId= {} updated.",id);
         List<WorkingHours> whs=doctor.getWorkingHours();
         whs.clear();

@@ -8,11 +8,22 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.server.ResponseStatusException;
+
 import java.time.Instant;
 
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<ProblemDetail> entityNotFound(ResponseStatusException ex){
+        var problemDetail= ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+        problemDetail.setTitle("Resource not found.");
+        problemDetail.setDetail(ex.getMessage());
+        problemDetail.setProperty("timestamp", Instant.now());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problemDetail);
+    }
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ProblemDetail> handleNotFound(EntityNotFoundException ex){
         var problemDetail= ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
