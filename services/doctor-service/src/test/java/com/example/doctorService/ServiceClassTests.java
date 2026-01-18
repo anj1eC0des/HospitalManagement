@@ -3,7 +3,6 @@ package com.example.doctorService;
 import com.example.doctorService.entity.*;
 import com.example.doctorService.repository.DoctorRepository;
 import com.example.doctorService.service.DoctorService;
-import jakarta.ws.rs.NotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -12,7 +11,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.print.Doc;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -46,7 +44,7 @@ public class ServiceClassTests {
         Doctor d=new Doctor(id,
                 "dummy"+id,
                 "dummy spec",
-                100+id,
+                100,
                 12345,
                 new ArrayList<>());
         List<WorkingHours> workingHours= new ArrayList<>(List.of(
@@ -104,7 +102,7 @@ public class ServiceClassTests {
         verify(doctorRepository).findAll();
         assertThat(actualDtos).containsExactlyElementsOf(expectedDtos);
     }
-    
+
     @Test
     void getDoctorReturnsDtoWhenFound(){
         Doctor dummyDoctor= makeDoctor(3);
@@ -174,4 +172,89 @@ public class ServiceClassTests {
                 .isEqualTo(docDtos);
 
     }
+
+    @Test
+    void findByDepartmentIdDelegatesToRepo(){
+        List<Doctor> doctorList=new ArrayList<>(List.of(makeDoctor(1),makeDoctor(2)));
+        when(doctorRepository.findByDepartment(100)).thenReturn(doctorList);
+        List<DoctorDTO> doctorDTOList= doctorList.stream()
+                .map(DoctorDTO::dtoFromEntity).toList();
+
+        List<DoctorDTO> actualList= doctorService.searchDoctorByDepartment(100);
+
+        verify(doctorRepository).findByDepartment(100);
+
+        assertThat(actualList).usingRecursiveComparison().isEqualTo(doctorDTOList);
+
+    }
+
+    @Test
+    void getWorkingHoursReturnsAppropriateDto(){
+        Doctor doctor=makeDoctor(5);
+        List<WorkingHoursDTO> expectedWorkingHoursDto=
+                doctor.getWorkingHours()
+                        .stream()
+                        .map(WorkingHoursDTO::dtoFromEntity)
+                        .toList();
+
+        when(doctorRepository.findById(5)).thenReturn(Optional.of(doctor));
+
+        List<WorkingHoursDTO> actualWorkingHoursDto=
+                doctorService.getWorkingHours(5);
+
+        verify(doctorRepository).findById(5);
+        assertThat(actualWorkingHoursDto)
+                .containsExactlyElementsOf(expectedWorkingHoursDto);
+
+    }
+
+    @Test
+    void getWorkingHoursThrowsExceptionWhenEntityNotFound(){
+        when(doctorRepository.findById(5)).thenReturn(Optional.empty());
+       assertThatThrownBy(()->doctorService.getWorkingHours(5))
+               .isInstanceOf(ResponseStatusException.class);
+       verify(doctorRepository).findById(5);
+    }
+
+    @Test
+    void setWorkingHoursWipesAndSetsWorkingHoursProperly(){
+        Doctor doctor=makeDoctor(5);
+        when(doctorRepository.findById(5)).thenReturn(Optional.of(doctor));
+        List<WorkingHoursDTO> wipedWorkingHoursDto= doctor.getWorkingHours()
+                .stream().map(WorkingHoursDTO::dtoFromEntity).toList();
+        List<WorkingHoursDTO> expectedWorkingHoursDto =new ArrayList<>(List.of(
+                new WorkingHoursDTO(DayOfWeek.TUESDAY,
+                        LocalTime.of(6,0),
+                        LocalTime.of(14,0)
+                ),
+                new WorkingHoursDTO(DayOfWeek.WEDNESDAY,
+                        LocalTime.of(9,0),
+                        LocalTime.of(17,0)
+                )
+        ));
+        doctorService.setWorkingHours(5, expectedWorkingHoursDto);
+
+        verify(doctorRepository).findById(5);
+        verify(doctorRepository).save(doctor);
+
+        List<WorkingHoursDTO> actualWorkingHoursDto=
+                doctor.getWorkingHours().stream()
+                        .map(WorkingHoursDTO::dtoFromEntity).toList();
+
+        assertThat(actualWorkingHoursDto)
+                .containsExactlyElementsOf(expectedWorkingHoursDto);
+        assertThat(actualWorkingHoursDto)
+                .doesNotContainAnyElementsOf(wipedWorkingHoursDto);
+    }
+
+    @Test
+    void setWorkingHoursThrowsExceptionWhenEntityNotFound(){
+        when(doctorRepository.findById(5)).thenReturn(Optional.empty());
+        assertThatThrownBy(()-> doctorService
+                    .setWorkingHours(5,new ArrayList<WorkingHoursDTO>()))
+                .isInstanceOf(ResponseStatusException.class);
+
+        verify(doctorRepository).findById(5);
+    }
+
 }
