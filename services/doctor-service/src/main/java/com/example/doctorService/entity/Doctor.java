@@ -25,6 +25,6 @@ public class Doctor {
     private int departmentId;
     @Column(name = "contactInformation",nullable = false)
     private int contactInformation;
-    @OneToMany(mappedBy = "doctor",cascade =CascadeType.ALL,orphanRemoval = true)
+    @OneToMany(mappedBy = "doctors",cascade =CascadeType.ALL,orphanRemoval = true)
     private List<WorkingHours> workingHours=new ArrayList<>();
 }

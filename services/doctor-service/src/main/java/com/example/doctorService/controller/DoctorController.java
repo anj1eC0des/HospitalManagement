@@ -30,8 +30,8 @@ public class DoctorController {
 
     @PostMapping("/doctors")
     @ResponseBody
-    public void createDoctor(@RequestBody CreateDoctor doctor) {
-        doctorService.createDoctor(doctor);
+    public DoctorDTO createDoctor(@RequestBody CreateDoctor doctor) {
+        return doctorService.createDoctor(doctor);
     }
 
     @GetMapping("/doctors")

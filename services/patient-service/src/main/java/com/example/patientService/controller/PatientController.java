@@ -1,9 +1,8 @@
 package com.example.patientService.controller;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
+import com.example.patientService.entity.ResponsePatientDto;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,25 +27,25 @@ public class PatientController {
 
     @PostMapping("/patients")
     @ResponseBody
-    public Patient createPatient(@RequestBody PatientDTO patient) {
+    public ResponsePatientDto createPatient(@RequestBody PatientDTO patient) {
         return patientService.creatPatient(patient);
     }
 
     @GetMapping("/patients")
     @ResponseBody
-    public List<Patient> getPatients() {
+    public List<ResponsePatientDto> getPatients() {
         return patientService.listPatients();
     }
 
     @GetMapping("/patients/{id}")
     @ResponseBody
-    public Optional<Patient> getPatients(@PathVariable int id) {
+    public ResponsePatientDto getPatients(@PathVariable int id) {
         return patientService.getPatient(id);
     }
 
     @PutMapping("/patients/{id}")
     @ResponseBody
-    public Patient updatePatients(@RequestBody PatientDTO patient, @PathVariable int id) {
+    public ResponsePatientDto updatePatients(@RequestBody PatientDTO patient, @PathVariable int id) {
         return patientService.updatePatient(id, patient);
     }
 
@@ -57,7 +56,7 @@ public class PatientController {
 
     @GetMapping("/search?name={name}")
     @ResponseBody
-    public List<Patient> searchPatients(@PathVariable String name) {
+    public List<ResponsePatientDto> searchPatients(@PathVariable String name) {
         return patientService.searchPatient(name);
     }
 }

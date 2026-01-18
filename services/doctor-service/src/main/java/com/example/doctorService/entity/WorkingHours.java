@@ -26,7 +26,7 @@ public class WorkingHours {
     @Column(name = "endTime",nullable = false)
     private LocalTime endTime;
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "doctor",nullable = false)
+    @JoinColumn(name = "doctors",nullable = false)
     private Doctor doctor;
 
     @AssertTrue(message = "the start-time should be before end-time")

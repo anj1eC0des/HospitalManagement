@@ -3,6 +3,9 @@ package com.example.patientService.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Data
 @Table(name="patients")
@@ -20,4 +23,6 @@ public class Patient {
     private int number;
     @Column(name = "address",nullable = false)
     private String address;
+    @OneToMany(mappedBy = "patients",cascade = CascadeType.ALL,orphanRemoval = true)
+    private List<PatientHistory> patientHistoryList=new ArrayList<>();
 }

@@ -1,15 +1,18 @@
 package com.example.patientService.service;
 
 import java.util.List;
-import java.util.Optional;
-
+import com.example.patientService.entity.ResponsePatientDto;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.example.patientService.entity.Patient;
 import com.example.patientService.entity.PatientDTO;
 import com.example.patientService.repository.PatientRepository;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
+@Slf4j
 public class PatientService {
 
     private final PatientRepository patientRepository;
@@ -18,41 +21,49 @@ public class PatientService {
         this.patientRepository = patientRepository;
     }
 
-    public Patient creatPatient(PatientDTO patient) {
-        Patient p = new Patient();
-        p.setName(patient.getName());
-        p.setAge(patient.getAge());
-        p.setGender(patient.getGender());
-        p.setNumber(patient.getNumber());
-        p.setAddress(patient.getAddress());
-        return patientRepository.save(p);
+    public ResponsePatientDto creatPatient(PatientDTO patient) {
+        Patient p= patientRepository.save(patient.getEntityFromDto());
+        log.info("Patient fetched. {} {}",p.getPatientId(),p.getName());
+        return ResponsePatientDto.getDtoFromEntity(p);
+
     }
 
-    public List<Patient> listPatients() {
-        return patientRepository.findAll();
+    public List<ResponsePatientDto> listPatients() {
+        List<Patient> patients=patientRepository.findAll();
+        log.info("Patient list fetched.");
+        return patients.stream()
+                .map(ResponsePatientDto::getDtoFromEntity).toList();
     }
 
-    public Optional<Patient> getPatient(int id) {
-        return patientRepository.findById(id);
+    public ResponsePatientDto getPatient(int id){
+        Patient patient= patientRepository.findById(id).orElseThrow(
+                ()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Patient Not Found.")
+        );
+        log.info("Patient fetched. {} {}",patient.getPatientId(),patient.getName());
+        return ResponsePatientDto.getDtoFromEntity(patient);
     }
 
-    public Patient updatePatient(int id, PatientDTO patient) {
-        Patient p = new Patient();
-        p.setPatientId(id);
-        p.setName(patient.getName());
-        p.setAge(patient.getAge());
-        p.setGender(patient.getGender());
-        p.setNumber(patient.getNumber());
-        p.setAddress(patient.getAddress());
-        return patientRepository.save(p);
+    public ResponsePatientDto updatePatient(int id, PatientDTO patient) {
+        Patient p= patientRepository.findById(id).orElseThrow(
+                ()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Patient Not Found.")
+        );
+        log.info("Patient fetched. {} {}",p.getPatientId(),p.getName());
+        p.setName(patient.name());
+        p.setAge(patient.age());
+        p.setGender(patient.gender());
+        p.setNumber(patient.number());
+        p.setAddress(patient.address());
+        Patient savedPatient= patientRepository.save(p);
+        return ResponsePatientDto.getDtoFromEntity(savedPatient);
     }
 
     public void deletePatient(int id) {
         patientRepository.deleteById(id);
     }
 
-    public List<Patient> searchPatient(String name) {
-        return patientRepository.findPatientByName(name);
+    public List<ResponsePatientDto> searchPatient(String name) {
+        return patientRepository.findPatientByName(name)
+                .stream().map(ResponsePatientDto::getDtoFromEntity).toList();
     }
 
 }

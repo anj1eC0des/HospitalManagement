@@ -23,13 +23,14 @@ public class DoctorService {
         this.doctorRepository = doctorRepository;
     }
 
-    public void createDoctor(CreateDoctor doctor) {
+    public DoctorDTO createDoctor(CreateDoctor doctor) {
         Doctor doc=doctorRepository.save(doctor.entityFromDoctor());
         log.info("Doctor created. {},{},{},{}",
                 doc.getDoctorId(),
                 doc.getName(),
                 doc.getDepartmentId(),
                 doc.getSpecialization());
+        return DoctorDTO.dtoFromEntity(doc);
     }
 
     public List<DoctorDTO> listDoctors() {
