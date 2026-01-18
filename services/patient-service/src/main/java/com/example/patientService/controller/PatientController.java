@@ -2,7 +2,7 @@ package com.example.patientService.controller;
 
 import java.util.List;
 
-import com.example.patientService.entity.ResponsePatientDto;
+import com.example.patientService.entity.*;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,8 +12,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.patientService.entity.Patient;
-import com.example.patientService.entity.PatientDTO;
 import com.example.patientService.service.PatientService;
 
 @RestController
@@ -47,6 +45,17 @@ public class PatientController {
     @ResponseBody
     public ResponsePatientDto updatePatients(@RequestBody PatientDTO patient, @PathVariable int id) {
         return patientService.updatePatient(id, patient);
+    }
+
+    @GetMapping("/patients/{id}/patientHistory")
+    public List<PatientHistoryDto> getPatientHistory(@PathVariable int id){
+        return patientService.getPatientHistory(id);
+    }
+
+    @PostMapping("/patients/{id}/patientHistory")
+    public List<PatientHistoryDto> setPatientHistory(@PathVariable int id,
+                @RequestBody List<PatientHistoryDto> patientHistoryDtos){
+        return patientService.updatePatientHistory(id,patientHistoryDtos);
     }
 
     @DeleteMapping("patients/{id}")
