@@ -24,13 +24,13 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class PatientServiceTests {
-
     @Mock
     PatientRepository patientRepository;
 
     @InjectMocks
     PatientService patientService;
 
+    //helper methods ---------------------------------
     PatientDTO makePatientDto(int i){
         List<PatientHistoryDto> patientHistoryDtos=new ArrayList<>(List.of(
                 new PatientHistoryDto("Lethargy",
@@ -60,6 +60,7 @@ public class PatientServiceTests {
         }
         return p;
     }
+    //------------------------------------------------
     @Test
     void createPatientMapsDtoToEntity(){
         ArgumentCaptor<Patient> captor=ArgumentCaptor.forClass(Patient.class);
