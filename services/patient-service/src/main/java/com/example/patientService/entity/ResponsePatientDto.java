@@ -1,5 +1,6 @@
 package com.example.patientService.entity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public record ResponsePatientDto (int id,
@@ -21,9 +22,11 @@ public record ResponsePatientDto (int id,
                     patientHistoryDtos);
         }
         public Patient getEntityFromDto(){
-            List<PatientHistory> patientHistoryList=this.patientHistory().stream()
-                    .map(PatientHistoryDto::getEntityFromDto).toList();
+            List<PatientHistory> patientHistoryList=new ArrayList<>();
             Patient patient=new Patient();
+            for(PatientHistoryDto phdto:this.patientHistory()){
+                patientHistoryList.add(phdto.getEntityFromDto(patient));
+            }
             patient.setName(this.name());
             patient.setAge(this.age());
             patient.setGender(this.gender());

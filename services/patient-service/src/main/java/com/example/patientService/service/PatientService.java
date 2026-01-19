@@ -52,6 +52,11 @@ public class PatientService {
         p.setGender(patient.gender());
         p.setNumber(patient.number());
         p.setAddress(patient.address());
+        List<PatientHistory> ph=p.getPatientHistoryList();
+        ph.clear();
+        for(PatientHistoryDto phdto:patient.patientHistory()){
+            ph.add(phdto.getEntityFromDto(p));
+        }
         Patient savedPatient= patientRepository.save(p);
         return ResponsePatientDto.getDtoFromEntity(savedPatient);
     }
@@ -72,7 +77,7 @@ public class PatientService {
         List<PatientHistory> patientHistoryList=patient.getPatientHistoryList();
         patientHistoryList.clear();
         for(PatientHistoryDto phd:patientHistoryDtos){
-            patientHistoryList.add(phd.getEntityFromDto());
+            patientHistoryList.add(phd.getEntityFromDto(patient));
         }
         Patient savedPatient= patientRepository.save(patient);
 

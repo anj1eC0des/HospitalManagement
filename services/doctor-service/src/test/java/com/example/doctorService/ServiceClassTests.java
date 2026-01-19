@@ -11,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.print.Doc;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -125,24 +126,29 @@ public class ServiceClassTests {
     @Test
     void checkIfUpdateMethodMutatesEntityCorrectly(){
         Doctor dummyDoctor = makeDoctor(1);
-        Doctor dummyDoctor2= makeDoctor(1);
-        //extract new working hours
-        List<WorkingHours> newWorkingHours= makeDoctor(2).getWorkingHours();
-        dummyDoctor2.setWorkingHours(newWorkingHours);
+        Doctor dummyDoctor2= makeDoctor(2);
+        dummyDoctor2.setDoctorId(1);
+        //dummyDoctor2 has different fields but same id as dummyDoctor1 now.
+        ArgumentCaptor<Doctor> captor= ArgumentCaptor.forClass(Doctor.class);
         CreateDoctor dummyCreateDoctor= CreateDoctor.dtoFromEntity(dummyDoctor2);
         DoctorDTO expectedDoctorDto= DoctorDTO.dtoFromEntity(dummyDoctor2);
         when(doctorRepository.findById(1)).thenReturn(Optional.of(dummyDoctor));
         when(doctorRepository.save(any(Doctor.class))).
                 thenAnswer(i->i.getArgument(0));
 
-        DoctorDTO mutatedDoctor= doctorService.updateDoctor(1,dummyCreateDoctor);
+        DoctorDTO returnedDoctorDto= doctorService.updateDoctor(1,dummyCreateDoctor);
 
         verify(doctorRepository).findById(1);
-        verify(doctorRepository).save(dummyDoctor);
+        verify(doctorRepository).save(captor.capture());
 
-        assertThat(mutatedDoctor).usingRecursiveComparison()
+        Doctor mutatedDoctor= captor.getValue();
+        DoctorDTO mutatedDoctorDto = DoctorDTO.dtoFromEntity(mutatedDoctor);
+
+        assertThat(mutatedDoctor).isSameAs(dummyDoctor);
+        assertThat(mutatedDoctorDto).usingRecursiveComparison()
                 .isEqualTo(expectedDoctorDto);
-
+        assertThat(returnedDoctorDto).usingRecursiveComparison()
+                .isEqualTo(expectedDoctorDto);
     }
 
     @Test

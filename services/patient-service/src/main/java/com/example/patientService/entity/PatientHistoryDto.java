@@ -13,8 +13,9 @@ public record PatientHistoryDto (
                 patientHistory.isActive()
         );
     }
-    public PatientHistory getEntityFromDto(){
+    public PatientHistory getEntityFromDto(Patient patient){
         PatientHistory patientHistory=new PatientHistory();
+        patientHistory.setPatient(patient);
         patientHistory.setConditionName(this.conditionName());
         patientHistory.setDiagnosedDate(this.diagnosedDate());
         patientHistory.setActive(this.isActive());
