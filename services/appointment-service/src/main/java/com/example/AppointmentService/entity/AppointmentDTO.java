@@ -1,25 +1,37 @@
 package com.example.AppointmentService.entity;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Null;
+import org.hibernate.sql.Update;
+
 import java.time.LocalDateTime;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+public record AppointmentDTO(
+    @Null(groups = CreateInstance.class)
+    @NotNull(groups = UpdateInstance.class)
+    int id,
+    int doctorId,
+    int patientId,
+    LocalDateTime appointmentDateTime,
+    Appointment.AppointmentStatus status){
+    public interface CreateInstance{}
+    public interface UpdateInstance{}
 
-@Data
-@AllArgsConstructor
-public class AppointmentDTO {
-    private int appointmentId;
-    private int doctorId;
-    private int patientId;
-    private LocalDateTime appointmentDateTime;
-    private String status;
-    private Long version;
+    public static AppointmentDTO dtoFromEntity(Appointment appointment){
+        return new AppointmentDTO(
+                appointment.getAppointmentId(),
+                appointment.getDoctorId(),
+                appointment.getPatientId(),
+                appointment.getAppointmentDateTime(),
+                appointment.getStatus()
+        );
+    }
 
-    public static AppointmentDTO from(Appointment appt) {
-        return new AppointmentDTO(appt.getAppointmentId(), appt.getDoctorId(),
-                appt.getPatientId(),
-                appt.getAppointmentDateTime(),
-                appt.getStatus(),
-                appt.getVersion());
+    public Appointment entityFromDto(){
+        Appointment appointment=new Appointment();
+        appointment.setDoctorId(this.doctorId());
+        appointment.setPatientId(this.patientId());
+        appointment.setAppointmentDateTime(this.appointmentDateTime());
+        return appointment;
     }
 }

@@ -2,26 +2,27 @@ package com.example.AppointmentService.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-import com.example.AppointmentService.entity.AppointmentDetailsDTO;
 import com.example.AppointmentService.entity.OutBoxEntity;
 import com.example.AppointmentService.repository.OutboxRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.example.AppointmentService.entity.Appointment;
 import com.example.AppointmentService.entity.AppointmentDTO;
 import com.example.AppointmentService.repository.AppointmentRepository;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @Slf4j
@@ -45,64 +46,95 @@ public class AppointmentService {
         this.rabbitTemplate=rabbitTemplate;
     }
 
-    public Appointment creatAppointment(AppointmentDetailsDTO appointment) throws Exception {
-        CompletableFuture<Object> patientExists= CompletableFuture.supplyAsync(()-> patientServiceClient.existsPatient(appointment.getPatientId()));
-        CompletableFuture<Object> doctorExists= CompletableFuture.supplyAsync(()->doctorServiceClient.existsDoctor(appointment.getDoctorId()));
+    @Transactional
+    public AppointmentDTO createAppointment(AppointmentDTO appointment)
+            throws ExecutionException, InterruptedException {
+        CompletableFuture<Object> patientExists= CompletableFuture.supplyAsync(()->
+                patientServiceClient.existsPatient(appointment.patientId()));
+        CompletableFuture<Object> doctorExists= CompletableFuture.supplyAsync(()->
+                doctorServiceClient.existsDoctor(appointment.doctorId()));
         CompletableFuture.allOf(patientExists,doctorExists)
                 .orTimeout(10, TimeUnit.SECONDS)
                 .join();
         if(patientExists.get()!=null && doctorExists.get()!=null){
-            Appointment appt= new Appointment();
-            appt.setPatientId(appointment.getPatientId());
-            appt.setDoctorId(appointment.getDoctorId());
-            appt.setAppointmentDateTime(appointment.getAppointmentDateTime());
-            appt.setStatus(appointment.getStatus());
-            Appointment savedappt= appointmentRepository.save(appt);
-            publishMessageAsync("appointment.queue", savedappt);
-            return savedappt;
+            Appointment savedAppointment=
+                    appointmentRepository.save(appointment.entityFromDto());
+            AppointmentDTO savedAppointmentDto =AppointmentDTO.dtoFromEntity(savedAppointment);
+            publishMessageAsync("appointment.queue", savedAppointmentDto);
+            log.info("Appointment created successfully {} {} {}",
+                    savedAppointment.getAppointmentId(),
+                    savedAppointment.getDoctorId(),
+                    savedAppointment.getPatientId());
+            return savedAppointmentDto;
         }
-        else throw new EntityNotFoundException("Doctor/Patient not found");
+        else throw new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Doctor/Patient not found");
     }
 
-    public List<Appointment> listAppointments() {
-        return appointmentRepository.findAll();
+    public List<AppointmentDTO> listAppointments() {
+        log.info("List of appointments fetched.");
+        return appointmentRepository.findAll().stream()
+                .map(AppointmentDTO::dtoFromEntity)
+                .toList();
     }
 
-    public Optional<Appointment> getAppointment(int id) {
-        return appointmentRepository.findById(id);
+    public AppointmentDTO getAppointment(int id) {
+        Appointment appointment=appointmentRepository.findById(id).orElseThrow(
+                ()-> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Appointment not found.")
+        );
+        return AppointmentDTO.dtoFromEntity(appointment);
     }
 
 
-    public Appointment updateAppointment(int id, AppointmentDetailsDTO appointment) {
-        Appointment appt= appointmentRepository
+    public AppointmentDTO updateAppointment(int id, AppointmentDTO appointmentDTO) {
+        Appointment appointment= appointmentRepository
                 .findById(id)
-                .orElseThrow(()->new EntityNotFoundException("Appt not found"));
-        appt.setPatientId(appointment.getPatientId());
-        appt.setDoctorId(appointment.getDoctorId());
-        appt.setAppointmentDateTime(appointment.getAppointmentDateTime());
-        appt.setStatus(appointment.getStatus());
-        Appointment updatedappt = appointmentRepository.save(appt);
-        publishMessageAsync("appointment.queue",updatedappt);
-        return updatedappt;
+                .orElseThrow(
+                        ()->new ResponseStatusException(
+                                HttpStatus.NOT_FOUND,
+                                "Appointment not found")
+                );
+        appointment.setPatientId(appointmentDTO.patientId());
+        appointment.setDoctorId(appointmentDTO.doctorId());
+        appointment.setAppointmentDateTime(appointmentDTO.appointmentDateTime());
+        switch(appointmentDTO.status()){
+            case PENDING -> throw new IllegalStateException(
+                    "Status is "+appointment.getStatus()+" but tried set Pending."
+            );
+            case CONFIRMED -> appointment.setAppointmentConfirmed();
+            case IN_PROGRESS -> appointment.setAppointmentInProgress();
+            case COMPLETED -> appointment.setAppointmentCompleted();
+            case CANCELLED -> appointment.setAppointmentCancelled();
+        }
+        AppointmentDTO updatedAppointmentDto = AppointmentDTO.dtoFromEntity(
+                appointmentRepository.save(appointment));
+        log.info("Appointment updated.");
+        publishMessageAsync("appointment.queue", updatedAppointmentDto);
+        return updatedAppointmentDto;
     }
 
     public void deleteAppointment(int id) {
         appointmentRepository.deleteById(id);
     }
 
-    public List<Appointment> searchAppointmentByPatientId(int patientId) {
-        return appointmentRepository.findByPatientId(patientId);
+    public List<AppointmentDTO> searchAppointmentByPatientId(int patientId) {
+        return appointmentRepository.findByPatientId(patientId).stream()
+                        .map(AppointmentDTO::dtoFromEntity).toList();
+
     }
 
-    public List<Appointment> searchAppointmentByDoctorId(int doctorId) {
-        return appointmentRepository.findByDoctorId(doctorId);
+    public List<AppointmentDTO> searchAppointmentByDoctorId(int doctorId) {
+        return appointmentRepository.findByDoctorId(doctorId).stream()
+                .map(AppointmentDTO::dtoFromEntity).toList();
     }
 
     @Async
-    public void publishMessageAsync(String queue, Appointment appt){
-        AppointmentDTO apptDTO= AppointmentDTO.from(appt);
+    public void publishMessageAsync(String queue, AppointmentDTO appointmentDTO){
         try{
-            String apptJson= objectMapper.writeValueAsString(apptDTO);
+            String apptJson= objectMapper.writeValueAsString(appointmentDTO);
             try{
                 rabbitTemplate.convertAndSend(queue,apptJson);
             }catch (AmqpException a){
