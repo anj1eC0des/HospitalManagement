@@ -1,9 +1,13 @@
 package com.example.AppointmentService.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.AssertTrue;
 import lombok.*;
 
+import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 
 @Entity
@@ -27,8 +31,14 @@ public class Appointment {
     private Integer doctorId;
     @Column(name = "patientId", nullable = false)
     private Integer patientId;
-    @Column(name = "appointmentDateTime", nullable = false)
-    private LocalDateTime appointmentDateTime;
+    @Column(name = "appointmentDate", nullable = false)
+    private LocalDate appointmentDate;
+    @Column(name= "appointmentStartTime",nullable = false)
+    private LocalTime appointmentStartTime;
+    @Column(name="appointmentEndTime",nullable=false)
+    private LocalTime appointmentEndTime;
+    @Column(name="appointmentDuration",nullable = false)
+    private Duration appointmentDuration;
     @Setter(AccessLevel.NONE)
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
@@ -61,5 +71,18 @@ public class Appointment {
         || this.getStatus()==AppointmentStatus.CANCELLED)
             throw new IllegalStateException("Already Completed or Cancelled Appointments cannot be cancelled again.");
         this.status=AppointmentStatus.CANCELLED;
+    }
+
+    @AssertTrue
+    boolean appointmentStartTimeIsAlwaysLessThanAppointmentEndTime(){
+        return this.appointmentStartTime!=null &&
+                this.appointmentEndTime!=null &&
+                this.appointmentStartTime.isBefore(this.appointmentEndTime);
+    }
+
+    @AssertTrue
+    boolean appointmentDurationCanNeverBeBelow15Mins(){
+        return !this.appointmentDuration.isZero() &&
+                this.appointmentDuration.compareTo(Duration.ofMinutes(15))>=0;
     }
 }

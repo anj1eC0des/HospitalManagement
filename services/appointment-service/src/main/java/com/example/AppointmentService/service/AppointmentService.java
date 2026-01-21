@@ -1,6 +1,8 @@
 package com.example.AppointmentService.service;
 
+import java.time.DayOfWeek;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -107,7 +109,10 @@ public class AppointmentService {
         }
         appointment.setPatientId(appointmentDTO.patientId());
         appointment.setDoctorId(appointmentDTO.doctorId());
-        appointment.setAppointmentDateTime(appointmentDTO.appointmentDateTime());
+        appointment.setAppointmentDate(appointmentDTO.appointmentDate());
+        appointment.setAppointmentStartTime(appointmentDTO.appointmentStartTime());
+        appointment.setAppointmentEndTime(appointmentDTO.appointmentEndTime());
+        appointment.setAppointmentDuration(appointmentDTO.appointmentDuration());
         switch(appointmentDTO.status()){
             case PENDING -> throw new IllegalStateException(
                     "Cannot revert status to Pending."
@@ -162,7 +167,14 @@ public class AppointmentService {
 //    boolean checkAvailability(int patientId,int doctorId, LocalDateTime appointmentDateTime){
 //        //enforce temporal business rules
 //        DayOfWeek dayOfWeek=appointmentDateTime.getDayOfWeek();
-//
+//        List<AppointmentDTO> appointmentDTOS= appointmentRepository
+//                .findByPatientId(patientId).stream()
+//                .map(AppointmentDTO::dtoFromEntity).toList();
+//        LocalTime timeOfAppointment= LocalTime.of(appointmentDateTime.getHour(),
+//                appointmentDateTime.getMinute());
+//        for(AppointmentDTO appointmentDTO:appointmentDTOS){
+//            if(timeOfAppointment.equals())
+//        }
 //        return true;
 //    }
 }
