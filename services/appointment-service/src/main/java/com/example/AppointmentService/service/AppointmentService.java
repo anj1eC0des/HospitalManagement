@@ -57,6 +57,9 @@ public class AppointmentService {
                 .orTimeout(10, TimeUnit.SECONDS)
                 .join();
         if(patientExists.get()!=null && doctorExists.get()!=null){
+//            checkAvailability(appointment.patientId(),
+//                    appointment.doctorId(),
+//                    appointment.appointmentDateTime());
             Appointment savedAppointment=
                     appointmentRepository.save(appointment.entityFromDto());
             AppointmentDTO savedAppointmentDto =AppointmentDTO.dtoFromEntity(savedAppointment);
@@ -95,14 +98,19 @@ public class AppointmentService {
                 .orElseThrow(
                         ()->new ResponseStatusException(
                                 HttpStatus.NOT_FOUND,
-                                "Appointment not found")
+                                "Appointment not found.")
                 );
+        if (appointment.getStatus() == Appointment.AppointmentStatus.COMPLETED ||
+                appointment.getStatus() == Appointment.AppointmentStatus.CANCELLED) {
+            throw new IllegalStateException(
+                    "Cannot update completed or cancelled appointments");
+        }
         appointment.setPatientId(appointmentDTO.patientId());
         appointment.setDoctorId(appointmentDTO.doctorId());
         appointment.setAppointmentDateTime(appointmentDTO.appointmentDateTime());
         switch(appointmentDTO.status()){
             case PENDING -> throw new IllegalStateException(
-                    "Status is "+appointment.getStatus()+" but tried set Pending."
+                    "Cannot revert status to Pending."
             );
             case CONFIRMED -> appointment.setAppointmentConfirmed();
             case IN_PROGRESS -> appointment.setAppointmentInProgress();
@@ -134,14 +142,14 @@ public class AppointmentService {
     @Async
     public void publishMessageAsync(String queue, AppointmentDTO appointmentDTO){
         try{
-            String apptJson= objectMapper.writeValueAsString(appointmentDTO);
+            String appointmentJson = objectMapper.writeValueAsString(appointmentDTO);
             try{
-                rabbitTemplate.convertAndSend(queue,apptJson);
+                rabbitTemplate.convertAndSend(queue, appointmentJson);
             }catch (AmqpException a){
                 System.out.println(a.getMessage());
                 OutBoxEntity ob=new OutBoxEntity();
                 ob.setQueue(queue);
-                ob.setAppointmentJson(apptJson);
+                ob.setAppointmentJson(appointmentJson);
                 ob.setProcessed(false);
                 ob.setTimeStamp(LocalDateTime.now());
                 outboxRepository.save(ob);
@@ -150,4 +158,11 @@ public class AppointmentService {
             log.warn("Object could not be p");
         }
     }
+
+//    boolean checkAvailability(int patientId,int doctorId, LocalDateTime appointmentDateTime){
+//        //enforce temporal business rules
+//        DayOfWeek dayOfWeek=appointmentDateTime.getDayOfWeek();
+//
+//        return true;
+//    }
 }

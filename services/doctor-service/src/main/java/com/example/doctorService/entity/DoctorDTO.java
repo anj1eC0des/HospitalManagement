@@ -1,18 +1,24 @@
 package com.example.doctorService.entity;
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Null;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
 public record DoctorDTO (
-        @NotNull int id,
+        @Null(groups = CreateInstance.class)
+        @NotNull(groups = UpdateInstance.class)
+        Long id,
         @NotNull String name,
         @NotNull String specialization,
-        @NotNull int departmentId,
-        @NotNull int contactInformation,
+        @NotNull Integer departmentId,
+        @NotNull Integer contactInformation,
         @NotNull List<WorkingHoursDTO> workingHours){
+
+    public interface CreateInstance{}
+    public interface UpdateInstance{}
     public static DoctorDTO dtoFromEntity(Doctor doctor){
         List<WorkingHoursDTO> workingHoursDTOS= new ArrayList<>();
         for(WorkingHours wh: doctor.getWorkingHours())

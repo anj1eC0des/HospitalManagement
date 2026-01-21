@@ -17,7 +17,7 @@ import java.time.LocalTime;
 public class WorkingHours {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
     @Enumerated(EnumType.STRING)
     @Column(name = "dayOfTheWeek",nullable = false)
     private DayOfWeek dayOfTheWeek;

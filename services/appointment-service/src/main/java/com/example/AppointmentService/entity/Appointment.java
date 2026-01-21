@@ -22,11 +22,11 @@ public class Appointment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int appointmentId;
+    private Long appointmentId;
     @Column(name = "doctorId", nullable = false)
-    private int doctorId;
+    private Integer doctorId;
     @Column(name = "patientId", nullable = false)
-    private int patientId;
+    private Integer patientId;
     @Column(name = "appointmentDateTime", nullable = false)
     private LocalDateTime appointmentDateTime;
     @Setter(AccessLevel.NONE)
@@ -34,12 +34,12 @@ public class Appointment {
     @Column(name = "status", nullable = false)
     private AppointmentStatus status=AppointmentStatus.PENDING;
     @Version
-    private long version;
+    private Long version;
 
     //methods to enforce appointment state machine
     public void setAppointmentConfirmed(){
         if(this.getStatus()!=AppointmentStatus.PENDING)
-            throw new IllegalStateException("Only pending Apponintments can be confirmed.");
+            throw new IllegalStateException("Only pending Appointments can be confirmed.");
         this.status=AppointmentStatus.CONFIRMED;
     }
 

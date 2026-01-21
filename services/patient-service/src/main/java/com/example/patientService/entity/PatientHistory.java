@@ -15,7 +15,7 @@ import java.time.LocalDate;
 public class PatientHistory {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
-    int id;
+    Long id;
     @Column(name="conditionName",nullable = false)
     String conditionName;
     @Column(name="diagnosedDate",nullable = false)

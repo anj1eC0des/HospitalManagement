@@ -32,15 +32,16 @@ public class ServiceClassTest {
     @InjectMocks
     DoctorService doctorService;
 
-    CreateDoctor makeCreateDoctorPayload(){
-        return new CreateDoctor("Ada Wong",
+    DoctorDTO makeCreateDoctorPayload(){
+        return new DoctorDTO(null,
+                "Ada Wong",
                 "Cardiology",
                 69,
                 12345678,
                 new ArrayList<WorkingHoursDTO>());
     }
 
-    Doctor makeDoctor(int id){
+    Doctor makeDoctor(Long id){
         Doctor d=new Doctor(id,
                 "dummy"+id,
                 "dummy spec",
@@ -66,7 +67,7 @@ public class ServiceClassTest {
 
     @Test
     void createDoctorSavesEntityMappedFromPayload(){
-        CreateDoctor createDoctorPayload= makeCreateDoctorPayload();
+        DoctorDTO createDoctorPayload= makeCreateDoctorPayload();
         ArgumentCaptor<Doctor> captor=ArgumentCaptor.forClass(Doctor.class);
         when(doctorRepository.save(any(Doctor.class)))
                 .thenAnswer(inv-> inv.getArgument(0));
@@ -91,8 +92,8 @@ public class ServiceClassTest {
 
     @Test
     void listDoctorsMapsEntitiesToDtos(){
-        Doctor d1=makeDoctor(1);
-        Doctor d2=makeDoctor(2);
+        Doctor d1=makeDoctor(1L);
+        Doctor d2=makeDoctor(2L);
         List<Doctor> dummyRepoReturn= List.of(d1,d2);
         when(doctorRepository.findAll()).thenReturn(dummyRepoReturn);
         List<DoctorDTO> expectedDtos= dummyRepoReturn.stream()
@@ -105,7 +106,7 @@ public class ServiceClassTest {
 
     @Test
     void getDoctorReturnsDtoWhenFound(){
-        Doctor dummyDoctor= makeDoctor(3);
+        Doctor dummyDoctor= makeDoctor(3L);
         DoctorDTO expectedDto= DoctorDTO.dtoFromEntity(dummyDoctor);
         when(doctorRepository.findById(3)).thenReturn(Optional.of(dummyDoctor));
         DoctorDTO actualDto= doctorService.getDoctor(3);
@@ -124,12 +125,12 @@ public class ServiceClassTest {
 
     @Test
     void checkIfUpdateMethodMutatesEntityCorrectly(){
-        Doctor dummyDoctor = makeDoctor(1);
-        Doctor dummyDoctor2= makeDoctor(2);
-        dummyDoctor2.setDoctorId(1);
+        Doctor dummyDoctor = makeDoctor(1L);
+        Doctor dummyDoctor2= makeDoctor(2L);
+        dummyDoctor2.setDoctorId(1L);
         //dummyDoctor2 has different fields but same id as dummyDoctor1 now.
         ArgumentCaptor<Doctor> captor= ArgumentCaptor.forClass(Doctor.class);
-        CreateDoctor dummyCreateDoctor= CreateDoctor.dtoFromEntity(dummyDoctor2);
+        DoctorDTO dummyCreateDoctor= DoctorDTO.dtoFromEntity(dummyDoctor2);
         DoctorDTO expectedDoctorDto= DoctorDTO.dtoFromEntity(dummyDoctor2);
         when(doctorRepository.findById(1)).thenReturn(Optional.of(dummyDoctor));
         when(doctorRepository.save(any(Doctor.class))).
@@ -152,7 +153,7 @@ public class ServiceClassTest {
 
     @Test
     void updateDoctorThrowsNotFoundWhenEntityAbsent(){
-        CreateDoctor dummyCreateDoctor= CreateDoctor.dtoFromEntity(makeDoctor(1));
+        DoctorDTO dummyCreateDoctor= DoctorDTO.dtoFromEntity(makeDoctor(1L));
         when(doctorRepository.findById(1)).thenReturn(Optional.empty());
 
         assertThatThrownBy(()->doctorService.updateDoctor(1,dummyCreateDoctor))
@@ -168,7 +169,7 @@ public class ServiceClassTest {
 
     @Test
     void findBySpecialisationDelegatesToRepo(){
-        List<Doctor> docs= List.of(makeDoctor(1),makeDoctor(2));
+        List<Doctor> docs= List.of(makeDoctor(1L),makeDoctor(2L));
         List<DoctorDTO> docDtos= docs.stream().map(DoctorDTO::dtoFromEntity).toList();
         when(doctorRepository.findBySpecialization("Cardiology")).thenReturn(docs);
         List<DoctorDTO> actualDtos=doctorService.searchDoctorsBySpecialization("Cardiology");
@@ -180,7 +181,7 @@ public class ServiceClassTest {
 
     @Test
     void findByDepartmentIdDelegatesToRepo(){
-        List<Doctor> doctorList=new ArrayList<>(List.of(makeDoctor(1),makeDoctor(2)));
+        List<Doctor> doctorList=new ArrayList<>(List.of(makeDoctor(1L),makeDoctor(2L)));
         when(doctorRepository.findByDepartment(100)).thenReturn(doctorList);
         List<DoctorDTO> doctorDTOList= doctorList.stream()
                 .map(DoctorDTO::dtoFromEntity).toList();
@@ -195,7 +196,7 @@ public class ServiceClassTest {
 
     @Test
     void getWorkingHoursReturnsAppropriateDto(){
-        Doctor doctor=makeDoctor(5);
+        Doctor doctor=makeDoctor(5L);
         List<WorkingHoursDTO> expectedWorkingHoursDto=
                 doctor.getWorkingHours()
                         .stream()
@@ -223,7 +224,7 @@ public class ServiceClassTest {
 
     @Test
     void setWorkingHoursWipesAndSetsWorkingHoursProperly(){
-        Doctor doctor=makeDoctor(5);
+        Doctor doctor=makeDoctor(5L);
         when(doctorRepository.findById(5)).thenReturn(Optional.of(doctor));
         List<WorkingHoursDTO> wipedWorkingHoursDto= doctor.getWorkingHours()
                 .stream().map(WorkingHoursDTO::dtoFromEntity).toList();

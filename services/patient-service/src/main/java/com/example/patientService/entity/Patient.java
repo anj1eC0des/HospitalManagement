@@ -12,15 +12,15 @@ import java.util.List;
 public class Patient {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
-    private int patientId;
+    private Long patientId;
     @Column(name="name",nullable = false)
     private String name;
     @Column(name = "age",nullable = false)
-    private int age;
+    private Integer age;
     @Column(name = "gender",nullable = false)
     private String gender;
     @Column(name = "number",nullable = false)
-    private int number;
+    private Integer number;
     @Column(name = "address",nullable = false)
     private String address;
     @OneToMany(mappedBy = "patient",cascade = CascadeType.ALL,orphanRemoval = true)

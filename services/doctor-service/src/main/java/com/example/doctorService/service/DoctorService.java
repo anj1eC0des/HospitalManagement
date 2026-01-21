@@ -2,10 +2,8 @@ package com.example.doctorService.service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import com.example.doctorService.entity.*;
-import jakarta.ws.rs.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -23,8 +21,8 @@ public class DoctorService {
         this.doctorRepository = doctorRepository;
     }
 
-    public DoctorDTO createDoctor(CreateDoctor doctor) {
-        Doctor doc=doctorRepository.save(doctor.entityFromDoctor());
+    public DoctorDTO createDoctor(DoctorDTO doctor) {
+        Doctor doc=doctorRepository.save(doctor.entityFromDto());
         log.info("Doctor created. {},{},{},{}",
                 doc.getDoctorId(),
                 doc.getName(),
@@ -54,7 +52,7 @@ public class DoctorService {
         return DoctorDTO.dtoFromEntity(doc);
     }
 
-    public DoctorDTO updateDoctor(int id, CreateDoctor doctor) {
+    public DoctorDTO updateDoctor(int id, DoctorDTO doctor) {
         Doctor doc = doctorRepository.findById(id).orElseThrow(
                 () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Doctor not found."));
 

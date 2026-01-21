@@ -1,11 +1,9 @@
 package com.example.doctorService.controller;
 
 import java.util.List;
-import java.util.Optional;
 
-import com.example.doctorService.entity.CreateDoctor;
 import com.example.doctorService.entity.WorkingHoursDTO;
-import jakarta.validation.Valid;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.doctorService.entity.Doctor;
 import com.example.doctorService.entity.DoctorDTO;
 import com.example.doctorService.service.DoctorService;
 
@@ -30,7 +27,9 @@ public class DoctorController {
 
     @PostMapping("/doctors")
     @ResponseBody
-    public DoctorDTO createDoctor(@RequestBody CreateDoctor doctor) {
+    public DoctorDTO createDoctor(
+            @Validated (DoctorDTO.CreateInstance.class)
+            @RequestBody DoctorDTO doctor) {
         return doctorService.createDoctor(doctor);
     }
 
@@ -48,7 +47,9 @@ public class DoctorController {
 
     @PutMapping("/doctors/{id}")
     @ResponseBody
-    public DoctorDTO updateDoctors(@RequestBody CreateDoctor doctor, @PathVariable int id) {
+    public DoctorDTO updateDoctors(
+            @Validated(DoctorDTO.CreateInstance.class)
+            @RequestBody DoctorDTO doctor, @PathVariable int id) {
         return doctorService.updateDoctor(id, doctor);
     }
 

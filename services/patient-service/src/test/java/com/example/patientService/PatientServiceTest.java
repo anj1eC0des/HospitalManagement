@@ -31,7 +31,7 @@ public class PatientServiceTest {
     PatientService patientService;
 
     //helper methods ---------------------------------
-    PatientDTO makePatientDto(int i){
+    PatientDTO makePatientDto(Long i){
         List<PatientHistoryDto> patientHistoryDtos=new ArrayList<>(List.of(
                 new PatientHistoryDto("Lethargy",
                         LocalDate.of(2025,1,1),
@@ -43,14 +43,14 @@ public class PatientServiceTest {
                         LocalDate.of(2005,3,13),
                         true)
         ));
-        return new PatientDTO(i%2==0?"Bhagirathi":"Alokik",
+        return new PatientDTO(null,i%2==0?"Bhagirathi":"Alokik",
                 25,
                 "Male",
                 12345,
                 "Nowhere at nowhere street",
                 i%2==0?patientHistoryDtos:patientHistoryDtos.subList(0,1));
     }
-    Patient makePatient(int id){
+    Patient makePatient(Long id){
         Patient p=makePatientDto(id).getEntityFromDto();
         p.setPatientId(id);
         int i=0;
@@ -64,7 +64,7 @@ public class PatientServiceTest {
     @Test
     void createPatientMapsDtoToEntity(){
         ArgumentCaptor<Patient> captor=ArgumentCaptor.forClass(Patient.class);
-        PatientDTO expectedPatientDto = makePatientDto(2);
+        PatientDTO expectedPatientDto = makePatientDto(2L);
         when(patientRepository.save(any(Patient.class))).thenAnswer(
                 i->i.getArgument(0));
         patientService.creatPatient(expectedPatientDto);
@@ -77,11 +77,11 @@ public class PatientServiceTest {
 
     @Test
     void listPatientMapsToDto(){
-        List<Patient> patients= List.of(makePatient(1),makePatient(2));
-        List<ResponsePatientDto> expectedPatientDtos = patients.stream()
-                        .map(ResponsePatientDto::getDtoFromEntity).toList();
+        List<Patient> patients= List.of(makePatient(1L),makePatient(2L));
+        List<PatientDTO> expectedPatientDtos = patients.stream()
+                        .map(PatientDTO::getDtoFromEntity).toList();
         when(patientRepository.findAll()).thenReturn(patients);
-        List<ResponsePatientDto> actualPatientDtos = patientService.listPatients();
+        List<PatientDTO> actualPatientDtos = patientService.listPatients();
         verify(patientRepository).findAll();
         assertThat(actualPatientDtos)
                 .usingRecursiveComparison()
@@ -90,10 +90,10 @@ public class PatientServiceTest {
 
     @Test
     void getPatientReturnsDtoWhenFound(){
-        Patient patient= makePatient(2);
-        ResponsePatientDto expectedDto= ResponsePatientDto.getDtoFromEntity(patient);
+        Patient patient= makePatient(2L);
+        PatientDTO expectedDto= PatientDTO.getDtoFromEntity(patient);
         when(patientRepository.findById(2)).thenReturn(Optional.of(patient));
-        ResponsePatientDto actualDto= patientService.getPatient(2);
+        PatientDTO actualDto= patientService.getPatient(2);
         verify(patientRepository).findById(2);
         assertThat(actualDto).usingRecursiveComparison().isEqualTo(expectedDto);
     }
@@ -108,20 +108,20 @@ public class PatientServiceTest {
 
     @Test
     void checkIfUpdateMethodMutatesEntityCorrectly(){
-        Patient dummyPatient = makePatient(1);
-        Patient dummyPatient2= makePatient(2);
-        dummyPatient2.setPatientId(1);
+        Patient dummyPatient = makePatient(1L);
+        Patient dummyPatient2= makePatient(2L);
+        dummyPatient2.setPatientId(1L);
 
         ArgumentCaptor<Patient> captor=ArgumentCaptor.forClass(Patient.class);
 
-        ResponsePatientDto expectedResponsePatientDto= ResponsePatientDto
+        PatientDTO expectedResponsePatientDto= PatientDTO
                 .getDtoFromEntity(dummyPatient2);
         PatientDTO dtoToBePassedToMutate= PatientDTO.getDtoFromEntity(dummyPatient2);
         when(patientRepository.findById(1)).thenReturn(Optional.of(dummyPatient));
         when(patientRepository.save(any(Patient.class))).
                 thenAnswer(i->i.getArgument(0));
 
-        ResponsePatientDto mutatedPatientResponseDto= patientService
+        PatientDTO mutatedPatientResponseDto= patientService
                 .updatePatient(1,dtoToBePassedToMutate);
 
         verify(patientRepository).findById(1);
@@ -140,7 +140,7 @@ public class PatientServiceTest {
     @Test
     void updatePatientThrowsExceptionWhenEntityNotFound(){
         when(patientRepository.findById(1)).thenReturn(Optional.empty());
-        assertThatThrownBy(()->patientService.updatePatient(1,makePatientDto(1)))
+        assertThatThrownBy(()->patientService.updatePatient(1,makePatientDto(1L)))
                 .isInstanceOf(ResponseStatusException.class);
         verify(patientRepository).findById(1);
     }
@@ -153,7 +153,7 @@ public class PatientServiceTest {
 
     @Test
     void getPatientHistoryMapsEntityToDto(){
-        Patient patient= makePatient(2);
+        Patient patient= makePatient(2L);
         List<PatientHistoryDto> expectedPatientHistoryDtos=patient
                 .getPatientHistoryList().stream()
                 .map(PatientHistoryDto::getDtoFromEntity).toList();
@@ -167,12 +167,12 @@ public class PatientServiceTest {
 
     @Test
     void updatePatientHistoryMutatesEntityProperly(){
-        Patient patient= makePatient(1);
+        Patient patient= makePatient(1L);
         when(patientRepository.findById(1)).thenReturn(Optional.of(patient));
         when(patientRepository.save(any(Patient.class)))
                 .thenAnswer(i->i.getArgument(0));
         List<PatientHistoryDto> patientHistoryDtosToBeSet=
-                makePatient(2).getPatientHistoryList().stream()
+                makePatient(2L).getPatientHistoryList().stream()
                         .map(PatientHistoryDto::getDtoFromEntity).toList();
         ArgumentCaptor<Patient> captor= ArgumentCaptor.forClass(Patient.class);
 
@@ -208,7 +208,7 @@ public class PatientServiceTest {
     void updatePatientHistoryThrowsExceptionWhenEntityNotFound(){
         when(patientRepository.findById(2)).thenReturn(Optional.empty());
         List<PatientHistoryDto> patientHistoryDtosToBeSet=
-                makePatient(2).getPatientHistoryList().stream()
+                makePatient(2L).getPatientHistoryList().stream()
                         .map(PatientHistoryDto::getDtoFromEntity).toList();
 
         assertThatThrownBy(()-> patientService

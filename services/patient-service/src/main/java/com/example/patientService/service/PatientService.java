@@ -20,29 +20,29 @@ public class PatientService {
         this.patientRepository = patientRepository;
     }
 
-    public ResponsePatientDto creatPatient(PatientDTO patient) {
+    public PatientDTO creatPatient(PatientDTO patient) {
         Patient p= patientRepository.save(patient.getEntityFromDto());
         log.info("Patient fetched. {} {}",p.getPatientId(),p.getName());
-        return ResponsePatientDto.getDtoFromEntity(p);
+        return PatientDTO.getDtoFromEntity(p);
 
     }
 
-    public List<ResponsePatientDto> listPatients() {
+    public List<PatientDTO> listPatients() {
         List<Patient> patients=patientRepository.findAll();
         log.info("Patient list fetched.");
         return patients.stream()
-                .map(ResponsePatientDto::getDtoFromEntity).toList();
+                .map(PatientDTO::getDtoFromEntity).toList();
     }
 
-    public ResponsePatientDto getPatient(int id){
+    public PatientDTO getPatient(int id){
         Patient patient= patientRepository.findById(id).orElseThrow(
                 ()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Patient Not Found.")
         );
         log.info("Patient fetched. {} {}",patient.getPatientId(),patient.getName());
-        return ResponsePatientDto.getDtoFromEntity(patient);
+        return PatientDTO.getDtoFromEntity(patient);
     }
 
-    public ResponsePatientDto updatePatient(int id, PatientDTO patient) {
+    public PatientDTO updatePatient(int id, PatientDTO patient) {
         Patient p= patientRepository.findById(id).orElseThrow(
                 ()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Patient Not Found.")
         );
@@ -58,7 +58,7 @@ public class PatientService {
             ph.add(phdto.getEntityFromDto(p));
         }
         Patient savedPatient= patientRepository.save(p);
-        return ResponsePatientDto.getDtoFromEntity(savedPatient);
+        return PatientDTO.getDtoFromEntity(savedPatient);
     }
 
     public List<PatientHistoryDto> getPatientHistory(int id){
@@ -88,9 +88,9 @@ public class PatientService {
         patientRepository.deleteById(id);
     }
 
-    public List<ResponsePatientDto> searchPatient(String name) {
+    public List<PatientDTO> searchPatient(String name) {
         return patientRepository.findPatientByName(name)
-                .stream().map(ResponsePatientDto::getDtoFromEntity).toList();
+                .stream().map(PatientDTO::getDtoFromEntity).toList();
     }
 
 

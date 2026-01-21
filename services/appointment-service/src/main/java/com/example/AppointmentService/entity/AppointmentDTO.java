@@ -2,16 +2,15 @@ package com.example.AppointmentService.entity;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
-import org.hibernate.sql.Update;
 
 import java.time.LocalDateTime;
 
 public record AppointmentDTO(
     @Null(groups = CreateInstance.class)
     @NotNull(groups = UpdateInstance.class)
-    int id,
-    int doctorId,
-    int patientId,
+    Long id,
+    Integer doctorId,
+    Integer patientId,
     LocalDateTime appointmentDateTime,
     Appointment.AppointmentStatus status){
     public interface CreateInstance{}

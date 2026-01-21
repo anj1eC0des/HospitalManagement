@@ -16,15 +16,15 @@ import java.util.List;
 public class Doctor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int doctorId;
+    private Long doctorId;
     @Column(name = "name",nullable = false)
     private String name;
     @Column(name = "specialization",nullable = false)
     private String specialization;
     @Column(name = "departmentId",nullable = false)
-    private int departmentId;
+    private Integer departmentId;
     @Column(name = "contactInformation",nullable = false)
-    private int contactInformation;
+    private Integer contactInformation;
     @OneToMany(mappedBy = "doctor",cascade =CascadeType.ALL,orphanRemoval = true)
     private List<WorkingHours> workingHours=new ArrayList<>();
 }

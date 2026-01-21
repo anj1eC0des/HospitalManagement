@@ -25,25 +25,25 @@ public class PatientController {
 
     @PostMapping("/patients")
     @ResponseBody
-    public ResponsePatientDto createPatient(@RequestBody PatientDTO patient) {
+    public PatientDTO createPatient(@RequestBody PatientDTO patient) {
         return patientService.creatPatient(patient);
     }
 
     @GetMapping("/patients")
     @ResponseBody
-    public List<ResponsePatientDto> getPatients() {
+    public List<PatientDTO> getPatients() {
         return patientService.listPatients();
     }
 
     @GetMapping("/patients/{id}")
     @ResponseBody
-    public ResponsePatientDto getPatients(@PathVariable int id) {
+    public PatientDTO getPatients(@PathVariable int id) {
         return patientService.getPatient(id);
     }
 
     @PutMapping("/patients/{id}")
     @ResponseBody
-    public ResponsePatientDto updatePatients(@RequestBody PatientDTO patient, @PathVariable int id) {
+    public PatientDTO updatePatients(@RequestBody PatientDTO patient, @PathVariable int id) {
         return patientService.updatePatient(id, patient);
     }
 
@@ -65,7 +65,7 @@ public class PatientController {
 
     @GetMapping("/search?name={name}")
     @ResponseBody
-    public List<ResponsePatientDto> searchPatients(@PathVariable String name) {
+    public List<PatientDTO> searchPatients(@PathVariable String name) {
         return patientService.searchPatient(name);
     }
 }
