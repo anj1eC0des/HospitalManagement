@@ -1,7 +1,6 @@
 package com.example.AppointmentService.controller;
 
 import java.util.List;
-import java.util.Optional;
 
 import com.example.AppointmentService.entity.AppointmentDTO;
 import org.springframework.validation.annotation.Validated;
@@ -14,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.AppointmentService.entity.Appointment;
 import com.example.AppointmentService.service.AppointmentService;
 
 @RestController

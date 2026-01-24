@@ -1,5 +1,7 @@
 package com.example.AppointmentService.entity;
 
+import com.example.AppointmentService.domain.valueObjects.AppointmentStatus;
+import com.example.AppointmentService.domain.valueObjects.TimeRange;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
 
@@ -17,31 +19,34 @@ public record AppointmentDTO(
     LocalTime appointmentStartTime,
     LocalTime appointmentEndTime,
     Duration appointmentDuration,
-    Appointment.AppointmentStatus status){
+    AppointmentStatus.StatusCode status){
     public interface CreateInstance{}
     public interface UpdateInstance{}
 
-    public static AppointmentDTO dtoFromEntity(Appointment appointment){
+    public static AppointmentDTO dtoFromEntity(AppointmentEntity appointmentEntity){
+        LocalTime startTime=appointmentEntity.getTimeRange().startTime();
+        LocalTime endTime= appointmentEntity.getTimeRange().endTime();
         return new AppointmentDTO(
-                appointment.getAppointmentId(),
-                appointment.getDoctorId(),
-                appointment.getPatientId(),
-                appointment.getAppointmentDate(),
-                appointment.getAppointmentStartTime(),
-                appointment.getAppointmentEndTime(),
-                appointment.getAppointmentDuration(),
-                appointment.getStatus()
+                appointmentEntity.getAppointmentId(),
+                appointmentEntity.getDoctorId(),
+                appointmentEntity.getPatientId(),
+                appointmentEntity.getAppointmentDate(),
+                startTime,
+                endTime,
+                Duration.between(startTime,endTime),
+                appointmentEntity.getStatus().statusCode()
         );
     }
 
-    public Appointment entityFromDto(){
-        Appointment appointment=new Appointment();
-        appointment.setDoctorId(this.doctorId());
-        appointment.setPatientId(this.patientId());
-        appointment.setAppointmentDate(this.appointmentDate());
-        appointment.setAppointmentStartTime(this.appointmentStartTime());
-        appointment.setAppointmentEndTime(this.appointmentEndTime());
-        appointment.setAppointmentDuration(this.appointmentDuration());
-        return appointment;
+    public AppointmentEntity entityFromDto(){
+        if(this.status()!= AppointmentStatus.StatusCode.PENDING)
+            throw new IllegalStateException("Can't create appointment entity with non-Pending Status Code");
+        AppointmentEntity appointmentEntity =new AppointmentEntity();
+        appointmentEntity.setDoctorId(this.doctorId());
+        appointmentEntity.setPatientId(this.patientId());
+        appointmentEntity.setAppointmentDate(this.appointmentDate());
+        appointmentEntity.setTimeRange(new TimeRange(
+                this.appointmentStartTime(),this.appointmentEndTime()));
+        return appointmentEntity;
     }
 }

@@ -1,13 +1,12 @@
 package com.example.AppointmentService.service;
 
-import java.time.DayOfWeek;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
+import com.example.AppointmentService.entity.AppointmentEntity;
 import com.example.AppointmentService.entity.OutBoxEntity;
 import com.example.AppointmentService.repository.OutboxRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -20,7 +19,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import com.example.AppointmentService.entity.Appointment;
 import com.example.AppointmentService.entity.AppointmentDTO;
 import com.example.AppointmentService.repository.AppointmentRepository;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,14 +60,14 @@ public class AppointmentService {
 //            checkAvailability(appointment.patientId(),
 //                    appointment.doctorId(),
 //                    appointment.appointmentDateTime());
-            Appointment savedAppointment=
+            AppointmentEntity savedAppointmentEntity =
                     appointmentRepository.save(appointment.entityFromDto());
-            AppointmentDTO savedAppointmentDto =AppointmentDTO.dtoFromEntity(savedAppointment);
+            AppointmentDTO savedAppointmentDto =AppointmentDTO.dtoFromEntity(savedAppointmentEntity);
             publishMessageAsync("appointment.queue", savedAppointmentDto);
             log.info("Appointment created successfully {} {} {}",
-                    savedAppointment.getAppointmentId(),
-                    savedAppointment.getDoctorId(),
-                    savedAppointment.getPatientId());
+                    savedAppointmentEntity.getAppointmentId(),
+                    savedAppointmentEntity.getDoctorId(),
+                    savedAppointmentEntity.getPatientId());
             return savedAppointmentDto;
         }
         else throw new ResponseStatusException(
@@ -85,45 +83,45 @@ public class AppointmentService {
     }
 
     public AppointmentDTO getAppointment(int id) {
-        Appointment appointment=appointmentRepository.findById(id).orElseThrow(
+        AppointmentEntity appointmentEntity =appointmentRepository.findById(id).orElseThrow(
                 ()-> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
                         "Appointment not found.")
         );
-        return AppointmentDTO.dtoFromEntity(appointment);
+        return AppointmentDTO.dtoFromEntity(appointmentEntity);
     }
 
 
     public AppointmentDTO updateAppointment(int id, AppointmentDTO appointmentDTO) {
-        Appointment appointment= appointmentRepository
+        AppointmentEntity appointmentEntity = appointmentRepository
                 .findById(id)
                 .orElseThrow(
                         ()->new ResponseStatusException(
                                 HttpStatus.NOT_FOUND,
                                 "Appointment not found.")
                 );
-        if (appointment.getStatus() == Appointment.AppointmentStatus.COMPLETED ||
-                appointment.getStatus() == Appointment.AppointmentStatus.CANCELLED) {
-            throw new IllegalStateException(
-                    "Cannot update completed or cancelled appointments");
-        }
-        appointment.setPatientId(appointmentDTO.patientId());
-        appointment.setDoctorId(appointmentDTO.doctorId());
-        appointment.setAppointmentDate(appointmentDTO.appointmentDate());
-        appointment.setAppointmentStartTime(appointmentDTO.appointmentStartTime());
-        appointment.setAppointmentEndTime(appointmentDTO.appointmentEndTime());
-        appointment.setAppointmentDuration(appointmentDTO.appointmentDuration());
-        switch(appointmentDTO.status()){
-            case PENDING -> throw new IllegalStateException(
-                    "Cannot revert status to Pending."
-            );
-            case CONFIRMED -> appointment.setAppointmentConfirmed();
-            case IN_PROGRESS -> appointment.setAppointmentInProgress();
-            case COMPLETED -> appointment.setAppointmentCompleted();
-            case CANCELLED -> appointment.setAppointmentCancelled();
-        }
+//        if (appointmentEntity.getStatus() == AppointmentEntity.AppointmentStatus.COMPLETED ||
+//                appointmentEntity.getStatus() == AppointmentEntity.AppointmentStatus.CANCELLED) {
+//            throw new IllegalStateException(
+//                    "Cannot update completed or cancelled appointments");
+//        }
+//        appointmentEntity.setPatientId(appointmentDTO.patientId());
+//        appointmentEntity.setDoctorId(appointmentDTO.doctorId());
+//        appointmentEntity.setAppointmentDate(appointmentDTO.appointmentDate());
+//        appointmentEntity.setAppointmentStartTime(appointmentDTO.appointmentStartTime());
+//        appointmentEntity.setAppointmentEndTime(appointmentDTO.appointmentEndTime());
+//        appointmentEntity.setAppointmentDuration(appointmentDTO.appointmentDuration());
+//        switch(appointmentDTO.status()){
+//            case PENDING -> throw new IllegalStateException(
+//                    "Cannot revert status to Pending."
+//            );
+//            case CONFIRMED -> appointmentEntity.setAppointmentConfirmed();
+//            case IN_PROGRESS -> appointmentEntity.setAppointmentInProgress();
+//            case COMPLETED -> appointmentEntity.setAppointmentCompleted();
+//            case CANCELLED -> appointmentEntity.setAppointmentCancelled();
+//        }
         AppointmentDTO updatedAppointmentDto = AppointmentDTO.dtoFromEntity(
-                appointmentRepository.save(appointment));
+                appointmentRepository.save(appointmentEntity));
         log.info("Appointment updated.");
         publishMessageAsync("appointment.queue", updatedAppointmentDto);
         return updatedAppointmentDto;
