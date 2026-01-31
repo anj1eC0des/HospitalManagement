@@ -27,6 +27,7 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 @Slf4j
 public class AppointmentService {
+    // make a dummy commit
     private final RabbitTemplate rabbitTemplate;
     private final AppointmentRepository appointmentRepository;
     private final PatientServiceClient patientServiceClient;
